@@ -1,0 +1,7 @@
+<h2>Welcome, {{ user.username }}</h2>
+<a href="{% url 'logout' %}">Logout</a>
+<ul>
+  {% for problem in problems %}
+    <li><a href="{% url 'problem_detail' problem.pk %}">{{ problem.title }}</a></li>
+  {% endfor %}
+</ul>
