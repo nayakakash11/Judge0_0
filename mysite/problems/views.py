@@ -3,6 +3,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm
 from .models import Problem
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Problem
+from compiler.forms import CodeSubmissionForm
+import uuid
+import subprocess
+from pathlib import Path
+from django.conf import settings
+from compiler.views import run_code
 
 def register_view(request):
     if request.method == 'POST':
@@ -35,5 +44,27 @@ def problem_list(request):
 
 @login_required
 def problem_detail(request, pk):
-    problem = Problem.objects.get(pk=pk)
-    return render(request, 'problem_detail.html', {'problem': problem})
+    problem = get_object_or_404(Problem, pk=pk)
+    output_data = None  
+
+    if request.method == "POST":
+        form = CodeSubmissionForm(request.POST)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.problem = problem  
+            output = run_code(submission.language, submission.code, submission.input_data)
+            submission.output_data = output
+            submission.save()
+            output_data = output  
+    else:
+        form = CodeSubmissionForm()
+
+    return render(
+        request,
+        "problem_detail.html",
+        {
+            "problem": problem,
+            "form": form,
+            "output_data": output_data,
+        }
+    )

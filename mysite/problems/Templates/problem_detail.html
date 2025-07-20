@@ -1,3 +1,14 @@
-<h2>{{ problem.title }}</h2>
+<h1>{{ problem.title }}</h1>
 <p>{{ problem.statement }}</p>
-<a href="{% url 'problem_list' %}">Back to problems</a>
+
+<h3>Submit your solution:</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Run Code</button>
+</form>
+
+{% if output_data %}
+    <h3>Output:</h3>
+    <pre>{{ output_data }}</pre>
+{% endif %}
