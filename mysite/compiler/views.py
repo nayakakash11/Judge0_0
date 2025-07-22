@@ -27,65 +27,55 @@ def submit(request):
 
 
 def run_code(language, code, input_data):
-    project_path = Path(settings.BASE_DIR)
-    directories = ["codes", "inputs", "outputs"]
-
-    for directory in directories:
-        dir_path = project_path / directory
-        dir_path.mkdir(parents=True, exist_ok=True)
-
     unique = str(uuid.uuid4())
+    base_path = Path(settings.BASE_DIR)
+    code_path = base_path / "codes"
+    input_path = base_path / "inputs"
+    output_path = base_path / "outputs"
 
-    code_file_name = f"{unique}.{language}"
-    input_file_name = f"{unique}.txt"
-    output_file_name = f"{unique}.txt"
+    # Ensure directories exist
+    for path in [code_path, input_path, output_path]:
+        path.mkdir(exist_ok=True)
 
-    code_file_path = project_path / "codes" / code_file_name
-    input_file_path = project_path / "inputs" / input_file_name
-    output_file_path = project_path / "outputs" / output_file_name
+    code_file = code_path / f"{unique}.{language}"
+    input_file = input_path / f"{unique}.txt"
+    output_file = output_path / f"{unique}.txt"
 
-    # Save code and input to files
-    code_file_path.write_text(code)
-    input_file_path.write_text(input_data)
-    output_file_path.touch()  # Create empty file
+    code_file.write_text(code)
+    input_file.write_text(input_data)
 
-    error_data = ""
+    docker_command = [
+        "docker", "run", "--rm",
+        "-v", f"{code_path}:/app/codes",
+        "-v", f"{input_path}:/app/inputs",
+        "-v", f"{output_path}:/app/outputs",
+        "code-runner",
+        "bash", "-c"
+    ]
 
     if language == "cpp":
-        executable_path = project_path / "codes" / unique
-        compile_result = subprocess.run(
-            ["clang++", str(code_file_path), "-o", str(executable_path)],
-            capture_output=True,
-            text=True
-        )
-
-        if compile_result.returncode != 0:
-            error_data = compile_result.stderr
-        else:
-            with open(input_file_path, "r") as input_file, open(output_file_path, "w") as output_file:
-                result = subprocess.run(
-                    [str(executable_path)],
-                    stdin=input_file,
-                    stdout=output_file,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-                error_data = result.stderr
-
+        run_cmd = f"""
+        clang++ /app/codes/{code_file.name} -o /app/codes/{unique} && \
+        /app/codes/{unique} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
+        """
     elif language == "py":
-        with open(input_file_path, "r") as input_file, open(output_file_path, "w") as output_file:
-            result = subprocess.run(
-                ["python3", str(code_file_path)],
-                stdin=input_file,
-                stdout=output_file,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            error_data = result.stderr
+        run_cmd = f"""
+        python3 /app/codes/{code_file.name} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
+        """
+    else:
+        return "Unsupported language"
 
-    output_data = output_file_path.read_text()
+    full_command = docker_command + [run_cmd]
 
-    if error_data:
-        output_data += "\n--- Error ---\n" + error_data
+    result = subprocess.run(full_command, capture_output=True, text=True)
+    stderr_output = result.stderr
 
-    return output_data
+    if not output_file.exists():
+        return f"Execution failed:\n{stderr_output}"
+
+    output_text = output_file.read_text()
+
+    if stderr_output:
+        output_text += "\n--- Error ---\n" + stderr_output
+
+    return output_text

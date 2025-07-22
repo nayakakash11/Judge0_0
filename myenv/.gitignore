@@ -21,8 +21,6 @@ local_settings.py
 # Logs
 *.log
 
-# macOS system file
-.DS_Store
 
 # VSCode and PyCharm
 .vscode/
@@ -31,3 +29,8 @@ local_settings.py
 # Compiled or temporary files
 *.swp
 *.bak
+
+.DS_Store
+db.sqlite3
+migrations
+__pycache__
