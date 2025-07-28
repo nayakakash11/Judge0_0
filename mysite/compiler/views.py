@@ -27,6 +27,7 @@ def submit(request):
 
 
 def run_code(language, code, input_data):
+
     unique = str(uuid.uuid4())
     base_path = Path(settings.BASE_DIR)
     code_path = base_path / "codes"
@@ -49,13 +50,13 @@ def run_code(language, code, input_data):
         "-v", f"{code_path}:/app/codes",
         "-v", f"{input_path}:/app/inputs",
         "-v", f"{output_path}:/app/outputs",
-        "code-runner",
+        "code-runner", 
         "bash", "-c"
     ]
 
     if language == "cpp":
         run_cmd = f"""
-        clang++ /app/codes/{code_file.name} -o /app/codes/{unique} && \
+        g++ /app/codes/{code_file.name} -o /app/codes/{unique} && \
         /app/codes/{unique} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
         """
     elif language == "py":
@@ -69,13 +70,9 @@ def run_code(language, code, input_data):
 
     result = subprocess.run(full_command, capture_output=True, text=True)
     stderr_output = result.stderr
+    
+    return {
+        "output_file": output_file,
+        "stderr": stderr_output
+    }
 
-    if not output_file.exists():
-        return f"Execution failed:\n{stderr_output}"
-
-    output_text = output_file.read_text()
-
-    if stderr_output:
-        output_text += "\n--- Error ---\n" + stderr_output
-
-    return output_text

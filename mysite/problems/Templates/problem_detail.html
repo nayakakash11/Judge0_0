@@ -5,10 +5,36 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Run Code</button>
+    <button type="submit" name="submit_code">Run Code</button>
 </form>
 
-{% if output_data %}
-    <h3>Output:</h3>
-    <pre>{{ output_data }}</pre>
+{% if result_message %}
+    <h3>Result:</h3>
+    <pre style="background-color: #f4f4f4; padding: 10px; border-left: 5px solid #ccc;">
+        {{ result_message }}
+    </pre>
 {% endif %}
+
+{% if show_review and not ai_review %}
+  <form method="get">
+    <input type="hidden" name="ai_review" value="1">
+    <input type="hidden" name="submission_id" value="{{ submission_id }}">
+    <button type="submit" class="btn btn-primary">Get AI Review</button>
+  </form>
+{% endif %}
+
+{% if ai_review %}
+  <div class="card mt-4">
+    <div class="card-header">
+      <strong>🔍 Gemini AI Review:</strong>
+    </div>
+    <div class="card-body">
+      <pre>{{ ai_review }}</pre>
+    </div>
+  </div>
+{% endif %}
+
+<!-- {% if ai_review %}
+  <h3>🤖 AI Review:</h3>
+  <pre>{{ ai_review }}</pre>
+{% endif %} -->

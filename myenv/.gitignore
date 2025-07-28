@@ -34,3 +34,7 @@ local_settings.py
 db.sqlite3
 migrations
 __pycache__
+codes
+inputs
+outputs
+testcases

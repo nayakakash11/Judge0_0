@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,11 @@ import subprocess
 from pathlib import Path
 from django.conf import settings
 from compiler.views import run_code
+from compiler.models import CodeSubmission
+from .utils.gemini import review_code
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.http import HttpResponse
 
 def register_view(request):
     if request.method == 'POST':
@@ -45,17 +51,86 @@ def problem_list(request):
 @login_required
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
-    output_data = None  
+    output_data = None
+    result_message = None
+    submission = None
+    show_review = False
+    ai_review = None
 
-    if request.method == "POST":
+    # If it's a GET request with an 'ai_review' trigger
+    if request.method == "GET" and "ai_review" in request.GET:
+        submission_id = request.GET.get("submission_id")
+        try:
+            submission = CodeSubmission.objects.get(id=submission_id)
+            if submission.verdict in ["Accepted", "Wrong Answer"]:
+                show_review = True
+                ai_review = review_code(
+                    code=submission.code,
+                    language=submission.language,
+                    verdict=submission.verdict,
+                    problem_title=problem.title,
+                    problem_statement=problem.statement,
+                )
+                result_message = f"💬 Gemini Review for {submission.verdict} code:"
+            else:
+                result_message = "⚠️ Review available only for Accepted or Wrong Answer verdicts."
+        except CodeSubmission.DoesNotExist:
+            result_message = "⚠️ Submission not found."
+
+        form = CodeSubmissionForm(initial={
+            "code": submission.code if submission else "",
+            "language": submission.language if submission else "python",
+        })
+
+    # POST request for new submission
+    elif request.method == "POST":
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
             submission = form.save(commit=False)
-            submission.problem = problem  
-            output = run_code(submission.language, submission.code, submission.input_data)
-            submission.output_data = output
-            submission.save()
-            output_data = output  
+            submission.problem = problem
+
+            input_file_path = f'testcases/{pk}/input.txt'
+            expected_output_path = f'testcases/{pk}/expected_output.txt'
+
+            if not os.path.exists(input_file_path) or not os.path.exists(expected_output_path):
+                result_message = "❌ Test cases not found for this problem."
+            else:
+                try:
+                    with open(input_file_path, 'r') as f:
+                        input_data = f.read()
+                        if not input_data.endswith('\n'):
+                            input_data += '\n'
+
+                    result = run_code(submission.language, submission.code, input_data)
+
+                    if result["stderr"]:
+                        verdict = "Runtime Error"
+                        result_message = f"⚠️ Error during code execution: {result['stderr']}"
+                        output_data = ""
+                    else:
+                        output_data = result["output_file"].read_text().strip()
+                        expected_output = Path(expected_output_path).read_text().strip()
+
+                        submission.output_data = output_data
+
+                        if output_data == expected_output:
+                            verdict = "Accepted"
+                            result_message = "✅ Your code passed all the test cases!"
+                            show_review = True
+                        else:
+                            verdict = "Wrong Answer"
+                            result_message = (
+                                "❌ Your code failed some test cases.\n\n"
+                                f"Expected Output:\n{expected_output}\n\n"
+                                f"Your Output:\n{output_data}"
+                            )
+                            show_review = True
+
+                    submission.verdict = verdict
+                    submission.save()
+
+                except Exception as e:
+                    result_message = f"⚠️ Exception occurred: {str(e)}"
     else:
         form = CodeSubmissionForm()
 
@@ -66,5 +141,10 @@ def problem_detail(request, pk):
             "problem": problem,
             "form": form,
             "output_data": output_data,
+            "result_message": result_message,
+            "submission_id": submission.id if submission else None,
+            "verdict": submission.verdict if submission else None,
+            "show_review": show_review,
+            "ai_review": ai_review,
         }
     )
