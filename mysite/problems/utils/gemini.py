@@ -34,6 +34,8 @@ Please provide a constructive code review in a very concise way that covers:
 1. Suggestions for improvement if any or if the code is wrong tell the user where is the mistake
 
 Keep the tone friendly and clear for a student-level developer.
+Dont give any code snippet or code in the response.
+It has to be only a suggestion without any code snippet.
 """
     try:
         response = model.generate_content(prompt)

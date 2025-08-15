@@ -8,16 +8,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Problem
 from compiler.forms import CodeSubmissionForm
-import uuid
-import subprocess
 from pathlib import Path
 from django.conf import settings
 from compiler.views import run_code
 from compiler.models import CodeSubmission
 from .utils.gemini import review_code
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.http import HttpResponse
 
 def register_view(request):
     if request.method == 'POST':
@@ -49,6 +45,34 @@ def problem_list(request):
     return render(request, 'problem_list.html', {'problems': problems})
 
 @login_required
+def code_editor(request):
+    output = None
+    error = None
+    code = ""
+    input_data = ""
+    language = "py"
+    if request.method == "POST":
+        code = request.POST.get("code", "")
+        input_data = request.POST.get("input_data", "")
+        language = request.POST.get("language", "py")
+        from compiler.views import run_code
+        result = run_code(language, code, input_data)
+        if result.get("stderr"):
+            error = result["stderr"]
+        else:
+            try:
+                output = result["output_file"].read_text()
+            except Exception as e:
+                error = str(e)
+    return render(request, "code_editor.html", {
+        "output": output,
+        "error": error,
+        "code": code,
+        "input_data": input_data,
+        "language": language,
+    })
+
+@login_required
 def problem_detail(request, pk):
     problem = get_object_or_404(Problem, pk=pk)
     output_data = None
@@ -71,7 +95,7 @@ def problem_detail(request, pk):
                     problem_title=problem.title,
                     problem_statement=problem.statement,
                 )
-                result_message = f"💬 Gemini Review for {submission.verdict} code:"
+                result_message = f"💬 Review for {submission.verdict} code:"
             else:
                 result_message = "⚠️ Review available only for Accepted or Wrong Answer verdicts."
         except CodeSubmission.DoesNotExist:
@@ -85,52 +109,70 @@ def problem_detail(request, pk):
     # POST request for new submission
     elif request.method == "POST":
         form = CodeSubmissionForm(request.POST)
+        custom_input = request.POST.get("custom_input", "")
         if form.is_valid():
             submission = form.save(commit=False)
             submission.problem = problem
 
-            input_file_path = f'testcases/{pk}/input.txt'
-            expected_output_path = f'testcases/{pk}/expected_output.txt'
-
-            if not os.path.exists(input_file_path) or not os.path.exists(expected_output_path):
-                result_message = "❌ Test cases not found for this problem."
-            else:
-                try:
-                    with open(input_file_path, 'r') as f:
-                        input_data = f.read()
-                        if not input_data.endswith('\n'):
-                            input_data += '\n'
-
-                    result = run_code(submission.language, submission.code, input_data)
-
+            # If user clicked "Run Code" (custom input)
+            if "run_code" in request.POST:
+                if not custom_input.strip():
+                    result_message = "⚠️ Please provide custom input to run your code."
+                else:
+                    result = run_code(submission.language, submission.code, custom_input)
                     if result["stderr"]:
-                        verdict = "Runtime Error"
                         result_message = f"⚠️ Error during code execution: {result['stderr']}"
                         output_data = ""
                     else:
-                        output_data = result["output_file"].read_text().strip()
-                        expected_output = Path(expected_output_path).read_text().strip()
+                        try:
+                            output_data = result["output_file"].read_text().strip()
+                            result_message = "✅ Code executed with your custom input."
+                        except Exception as e:
+                            result_message = f"⚠️ Exception occurred: {str(e)}"
+            # If user clicked "Submit" (official test cases)
+            elif "submit_code" in request.POST:
+                input_file_path = f'testcases/{pk}/input.txt'
+                expected_output_path = f'testcases/{pk}/expected_output.txt'
 
-                        submission.output_data = output_data
+                if not os.path.exists(input_file_path) or not os.path.exists(expected_output_path):
+                    result_message = "❌ Test cases not found for this problem."
+                else:
+                    try:
+                        with open(input_file_path, 'r') as f:
+                            input_data = f.read()
+                            if not input_data.endswith('\n'):
+                                input_data += '\n'
 
-                        if output_data == expected_output:
-                            verdict = "Accepted"
-                            result_message = "✅ Your code passed all the test cases!"
-                            show_review = True
+                        result = run_code(submission.language, submission.code, input_data)
+
+                        if result["stderr"]:
+                            verdict = "Runtime Error"
+                            result_message = f"⚠️ Error during code execution: {result['stderr']}"
+                            output_data = ""
                         else:
-                            verdict = "Wrong Answer"
-                            result_message = (
-                                "❌ Your code failed some test cases.\n\n"
-                                f"Expected Output:\n{expected_output}\n\n"
-                                f"Your Output:\n{output_data}"
-                            )
-                            show_review = True
+                            output_data = result["output_file"].read_text().strip()
+                            expected_output = Path(expected_output_path).read_text().strip()
 
-                    submission.verdict = verdict
-                    submission.save()
+                            submission.output_data = output_data
 
-                except Exception as e:
-                    result_message = f"⚠️ Exception occurred: {str(e)}"
+                            if output_data == expected_output:
+                                verdict = "Accepted"
+                                result_message = "✅ Your code passed all the test cases!"
+                                show_review = True
+                            else:
+                                verdict = "Wrong Answer"
+                                result_message = (
+                                    "❌ Your code failed some test cases.\n\n"
+                                    f"Expected Output:\n{expected_output}\n\n"
+                                    f"Your Output:\n{output_data}"
+                                )
+                                show_review = True
+
+                        submission.verdict = verdict
+                        submission.save()
+
+                    except Exception as e:
+                        result_message = f"⚠️ Exception occurred: {str(e)}"
     else:
         form = CodeSubmissionForm()
 

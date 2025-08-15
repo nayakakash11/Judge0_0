@@ -1,7 +1,6 @@
+21
 3
 flower flow flight
-4
-dog racecar car
 5
 interspecies interstellar internet internal interval
 3
@@ -28,11 +27,9 @@ test tester testing tested
 prefix pre press
 4
 blue black blink blur
-3
-rain train brain
 5
 same same same same same
-6
+5
 go goal goalpost going gone
 7
 hi hip hit his him hims hint
@@ -44,57 +41,3 @@ meet meat meta
 fast faster fasting fasten
 5
 dry drys dryad dried drying
-2
-abc bcd
-3
-moon moose mood
-3
-sing singer single
-4
-sky sky sky sky
-2
-a b
-4
-call calm camel camp
-5
-pine pink pin pinot ping
-3
-flash flask flat
-4
-hard hardly harden hardware
-3
-one once onion
-5
-check checker checking checked checkout
-3
-code coder coding
-3
-tree trek treat
-4
-open opera opinion opus
-3
-fish dish wish
-5
-home hom homie homeless hometown
-3
-red read ready
-4
-ball bat bar barn
-2
-fit fine
-3
-walk wall wallet
-3
-blue clue glue
-4
-carve carve carving carved
-4
-green greet greed greedy
-3
-play pray player
-4
-note not noble nothing
-2
-cup cupcake
-3
-ring ringlet ringtone

@@ -5,6 +5,7 @@ Language_choices = [
     ("py", "Python"),
     ("c", "C"),
     ("cpp", "C++"),
+    ("java", "Java"),
 ]
 
 class CodeSubmissionForm(forms.ModelForm):
@@ -12,6 +13,6 @@ class CodeSubmissionForm(forms.ModelForm):
 
     class Meta:
         model = CodeSubmission
-        fields = ["language", "code", "input_data"]
+        fields = ["language", "code"]
                 
 

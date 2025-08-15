@@ -63,6 +63,16 @@ def run_code(language, code, input_data):
         run_cmd = f"""
         python3 /app/codes/{code_file.name} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
         """
+    elif language == "c":
+        run_cmd = f"""
+        gcc /app/codes/{code_file.name} -o /app/codes/{unique} && \
+        /app/codes/{unique} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
+        """
+    elif language == "java":
+        run_cmd = f"""
+        javac /app/codes/{code_file.name} && \
+        java -cp /app/codes {code_file.stem} < /app/inputs/{input_file.name} > /app/outputs/{output_file.name}
+        """
     else:
         return "Unsupported language"
 

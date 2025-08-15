@@ -1,7 +1,103 @@
-<h2>Welcome, {{ user.username }}</h2>
-<a href="{% url 'logout' %}">Logout</a>
-<ul>
-  {% for problem in problems %}
-    <li><a href="{% url 'problem_detail' problem.pk %}">{{ problem.title }}</a></li>
-  {% endfor %}
-</ul>
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f7f9fc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #0d6efd;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h2 {
+            margin: 0;
+            font-weight: bold;
+        }
+        main {
+            flex: 1;
+            padding: 20px;
+        }
+        .big-editor-btn {
+            font-size: 1.25rem;
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #4cafef, #007bff);
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        .big-editor-btn:hover {
+            background: linear-gradient(135deg, #007bff, #004eaa);
+            transform: translateY(-2px);
+        }
+        .problem-list li {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .problem-list li:hover {
+            background: #f1f8ff;
+            transform: translateX(3px);
+        }
+        footer {
+            background: #f1f1f1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>👋 Welcome, {{ user.username }}</h2>
+    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+</header>
+
+<main>
+    <a href="{% url 'code_editor' %}" class="big-editor-btn">💻 Go to Code Editor</a>
+
+    <h4>Available Problems</h4>
+    <ul class="list-unstyled problem-list">
+        {% for problem in problems %}
+            <li>
+                <a href="{% url 'problem_detail' problem.pk %}" class="text-decoration-none fw-bold text-primary">
+                    {{ problem.title }}
+                </a>
+            </li>
+        {% empty %}
+            <li>No problems available at the moment.</li>
+        {% endfor %}
+    </ul>
+</main>
+
+<footer>
+    &copy; {{ now|date:"Y" }} Online Judge Platform. All Rights Reserved.
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
