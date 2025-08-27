@@ -1,6 +1,6 @@
-# CodeSphere – AI-Powered Online Code Execution Platform 🚀
+# Judge0_0 – AI-Powered Online Code Execution Platform 🚀
 
-CodeSphere is an *AI-powered online code execution and review platform* that allows users to write, execute, and validate code securely within isolated Docker containers.  
+Judge0_0 is an *AI-powered online code execution and review platform* that allows users to write, execute, and validate code securely within isolated Docker containers.  
 It is built with *Django* and integrates *Google Gemini AI* for intelligent, real-time code review and feedback.  
 
 Live Website 🌍: [https://mysite.ojhub.online](https://mysite.ojhub.online)  
@@ -54,8 +54,8 @@ Live Website 🌍: [https://mysite.ojhub.online](https://mysite.ojhub.online)
 
 ### 1. Clone the Repository
 ```
-git clone https://github.com/yourusername/codesphere.git
-cd codesphere
+git clone https://github.com/yourusername/Judge0_0.git
+cd mysite
 ```
 
 
@@ -130,8 +130,8 @@ Project files are directly cloned and run inside the EC2 instance.
 Deployment Steps:
 Clone project inside EC2
 ```
-git clone https://github.com/yourusername/codesphere.git
-cd codesphere
+git clone https://github.com/yourusername/Judge0_0.git
+cd Judge0_0
 ```
 
 Install dependencies
@@ -146,7 +146,7 @@ python manage.py collectstatic
 
 Setup Nginx for reverse proxy + SSL
 ```
-sudo nano /etc/nginx/sites-available/codesphere
+sudo nano /etc/nginx/sites-available/Judge0_0
 ```
 
 ---
@@ -157,8 +157,8 @@ sudo nano /etc/nginx/sites-available/codesphere
 - No sensitive data is exposed to user code.  
 - SSL ensures secure communication over HTTPS.  
 
-CodeSphere – AI-Powered Online Code Execution Platform 🚀
-CodeSphere is an AI-powered online code execution and review platform that allows users to write, execute, and validate code securely within isolated Docker containers.
+Judge0_0 – AI-Powered Online Code Execution Platform 🚀
+Judge0_0 is an AI-powered online code execution and review platform that allows users to write, execute, and validate code securely within isolated Docker containers.
 It is built with Django and integrates Google Gemini AI for intelligent, real-time code review and feedback.
 
 Live Website 🌍: https://your-domain.com
