@@ -1,0 +1,17 @@
+myenv/
+.DS_Store
+db.sqlite3
+migrations
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*/migrations/
+*.sqlite3
+*.log
+*.pot
+*/codes/
+*/inputs/
+*/outputs/
+*.env
+*/testcases/
