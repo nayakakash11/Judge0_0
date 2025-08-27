@@ -3,7 +3,7 @@ import os
 
 # Set your Gemini API Key securely
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Set in .env or your server config
-genai.configure(api_key="AIzaSyCHnl4fWDah9leeBi16B8E-cUVTLJPVsTM")
+genai.configure(api_key="GEMINI_API_KEY")
 
 # Initialize Gemini Model
 model = genai.GenerativeModel("gemini-2.0-flash")
