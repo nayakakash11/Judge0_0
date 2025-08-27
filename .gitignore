@@ -1,4 +1,6 @@
-myenv/
+myenv/lib/
+myenv/bin/
+myenv/include/
 .DS_Store
 db.sqlite3
 *.sqlite3
@@ -14,3 +16,5 @@ mysite/codes/
 mysite/inputs/
 mysite/outputs/
 mysite/testcases/
+mysite/.env
+mysite/db.sqlite3
