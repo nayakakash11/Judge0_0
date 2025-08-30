@@ -117,8 +117,12 @@
       {% csrf_token %}
       
       <!-- Code Editor -->
-      <div class="mb-3">
-        {{ form.as_p }}
+      <div class="editor-container">
+      {{ form.as_p }}
+
+      <p class="text-muted fst-italic mt-2">
+      <strong>Note for Java users:</strong> Please write your code inside the <code>main</code> function, and the class name should be <code>Main</code>. The Java program execution starts from the <code>main</code> method.
+      </p>
       </div>
 
       <!-- Custom Input -->
