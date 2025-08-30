@@ -3,7 +3,7 @@
 Exec_0 is an *AI-powered online code execution and review platform* that allows users to write, execute, and validate code securely within isolated Docker containers.  
 It is built with *Django* and integrates *Google Gemini AI* for intelligent, real-time code review and feedback.  
 
-Live Website 🌍: [https://mysite.ojhub.online](https://mysite.ojhub.online)  
+Live Website 🌍: [Link](https://judge-6s64.onrender.com)  
 
 ---
 
