@@ -36,20 +36,42 @@
       white-space: pre-wrap;
     }
 
-    /* Code Editor & Inputs */
-    textarea, textarea.form-control {
-      font-family: monospace;
-      font-size: 14px;
-      border-radius: 8px;
-      background: #fefefe;
+    /* Enhanced Code Editor Box */
+    .editor-box {
+      border-radius: 12px;
+      overflow: hidden;
     }
-    textarea#id_source_code {
-      height: 400px; /* Full coding area */
+    .editor-box .card-header {
+      background: #2196f3;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 25px;
+    }
+    .editor-container textarea,
+    .editor-container textarea.form-control {
+      height: 550px !important; /* Bigger coding area */
+      width: 1000px;
+      border: none;
+      border-radius: 0;
+      font-family: "Fira Code", monospace;
+      font-size: 15px;
+      background: #1e1e1e; /* Dark editor style */
+      color: #eaeaea;
+      padding: 15px;
+      resize: none;
+    }
+
+    Language selector
+    #language {
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-weight: 600;
+      font-size: 14px;
     }
 
     /* Buttons */
     .btn-run {
-      background: linear-gradient(90deg, #6c757d, #495057);
+      background: #6c757d;
       color: white;
       border-radius: 8px;
       padding: 10px 20px;
@@ -111,32 +133,36 @@
   </div>
 
   <!-- Submission Form -->
-  <div class="card p-4 mb-4 shadow-sm">
-    <h3 class="mb-3 text-primary">Submit Your Solution</h3>
-    <form method="post">
-      {% csrf_token %}
-      
-      <!-- Code Editor -->
-      <div class="editor-container">
-      {{ form.as_p }}
+  <div class="card mb-4 shadow-lg editor-box">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>💻 Code Submission</span>
+      <!-- Language Selector -->
+    </div>
+    <div class="card-body p-0">
+      <form method="post">
+        {% csrf_token %}
+        <p class="text-muted fst-italic mt-2">
+        <strong>Note for Java users:</strong> Please write your code inside the <code>main</code> function, and the class name should be <code>Main</code>. The Java program execution starts from the <code>main</code> method.
+        </p>
+        
+        <!-- Code Editor -->
+        <div class="editor-container">
+        {{ form.as_p }}
+        </div>
 
-      <p class="text-muted fst-italic mt-2">
-      <strong>Note for Java users:</strong> Please write your code inside the <code>main</code> function, and the class name should be <code>Main</code>. The Java program execution starts from the <code>main</code> method.
-      </p>
-      </div>
+        <!-- Custom Input -->
+        <div class="p-3">
+          <label for="custom_input" class="form-label fw-bold text-secondary">Custom Input (optional):</label>
+          <textarea name="custom_input" id="custom_input" rows="4" class="form-control">{{ custom_input|default_if_none:"" }}</textarea>
+        </div>
 
-      <!-- Custom Input -->
-      <div class="mb-3">
-        <label for="custom_input" class="form-label fw-bold text-secondary">Custom Input (optional):</label>
-        <textarea name="custom_input" id="custom_input" rows="4" class="form-control">{{ custom_input|default_if_none:"" }}</textarea>
-      </div>
-
-      <!-- Buttons -->
-      <div class="d-flex gap-2">
-        <button type="submit" name="run_code" class="btn-run">▶ Run Code</button>
-        <button type="submit" name="submit_code" class="btn-submit">✅ Submit</button>
-      </div>
-    </form>
+        <!-- Buttons -->
+        <div class="d-flex gap-3 justify-content-end p-3 border-top bg-light">
+          <button type="submit" name="run_code" class="btn-run">▶️ Run Code</button>
+          <button type="submit" name="submit_code" class="btn-submit">✅ Submit</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Execution Result -->
