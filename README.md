@@ -68,13 +68,6 @@ pip install -r requirements.txt
 ```
 
 ### 3. Configure Environment Variables
-Create a .env file in the root directory:
-```
-DEBUG=True
-SECRET_KEY=your_django_secret_key
-ALLOWED_HOSTS=your-domain.com,localhost,127.0.0.1
-```
-
 Gemini API Key
 ```
 GEMINI_API_KEY=your_gemini_api_key
@@ -148,7 +141,26 @@ python manage.py collectstatic
 
 Setup Nginx for reverse proxy + SSL
 ```
-sudo nano /etc/nginx/sites-available/Exec_0
+sudo yum install nginx
+sudo systemctl status nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo yum install certbot python3-certbot-nginx
+sudo vim /etc/nginx/conf.d/domain.conf
+
+server {
+    listen 80 default_server;
+    server_name your_domain; #replace you_domain with your actual domain
+    location / {
+        proxy_pass http://localhost:5000; #port your app is running on
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
 ```
 
 ---
