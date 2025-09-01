@@ -56,7 +56,7 @@ Demo : [Link](https://drive.google.com/file/d/1N1_9ED6Bnt9hL9B9vRg1H0cysrEdZnQG/
 
 ### 1. Clone the Repository
 ```
-git clone https://github.com/yourusername/Exec_0.git
+git clone https://github.com/yourusername/Judge0_0.git
 cd mysite
 ```
 
