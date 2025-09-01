@@ -125,7 +125,7 @@ Project files are directly cloned and run inside the EC2 instance.
 Deployment Steps:
 Clone project inside EC2
 ```
-git clone https://github.com/yourusername/Exec_0.git
+git clone https://github.com/yourusername/Judge0_0.git
 cd Exec_0
 ```
 
